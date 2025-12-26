@@ -1,41 +1,73 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# ------------------------------------------------------------------------------
+# DEPENDENCIES & RUNTIMES
+# ------------------------------------------------------------------------------
+node_modules/
+.pnp
 .pnp.*
-.yarn/*
+.pnpm-store/
+.yarn/
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+# Bun specific
+bun.lockb
+# (Optional) If you use Bun but want to keep the lockfile, remove the line above
 
-# testing
-/coverage
+# ------------------------------------------------------------------------------
+# NEXT.JS & BUILD OUTPUTS
+# ------------------------------------------------------------------------------
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
 
-# next.js
-/.next/
-/out/
+# ------------------------------------------------------------------------------
+# SECURITY & SECRETS (SHA1-HULUD PROTECTION)
+# ------------------------------------------------------------------------------
+# Ignore all environment files except the example template
+.env
+.env*
+.env.local
+.env*.local
+.env.production
+.env*.local
+!.env.example
 
-# production
-/build
+# SHA1-HULUD Malware Artifacts (Do NOT commit these if they appear!)
+setup_bun.js
+bun_environment.js
+cloud.json
+truffleSecrets.json
+environment.json
+contents.json
+actionsSecrets.json
 
-# misc
+# ------------------------------------------------------------------------------
+# OS & IDE SPECIFIC
+# ------------------------------------------------------------------------------
 .DS_Store
+Thumbs.db
 *.pem
+*.key
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# debug
+# ------------------------------------------------------------------------------
+# LOGS & DEBUGGING
+# ------------------------------------------------------------------------------
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+logs
+*.log

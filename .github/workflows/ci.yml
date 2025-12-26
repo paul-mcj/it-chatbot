@@ -1,0 +1,26 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22 # Matches your .nvmrc
+          cache: "npm" # Speeds up builds safely
+
+      - name: Install Dependencies
+        # 1. 'ci' ensures the lockfile isn't changed
+        # 2. 'ignore-scripts' stops Sha1-Hulud from running during install
+        run: npm ci --ignore-scripts
+
+      - name: Security Scan
+        # Runs the check we added to your package.json
+        run: npm run security-check
+
+      - name: Build
+        run: npm run build
