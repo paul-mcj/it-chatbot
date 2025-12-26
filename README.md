@@ -14,15 +14,15 @@ Follow these steps every time you start a new client site to ensure 100% setup a
 
 3.  **Dependency Install**: Run `npm install`.
 
-    4. **Note**: The `.npmrc` is pre-configured with `legacy-peer-deps=true` and `ignore-scripts=true` for safety.
+    1. **Note**: The `.npmrc` is pre-configured with `legacy-peer-deps=true` and `ignore-scripts=true` for safety.
 
 4.  **Local Config**: `cp .env.example .env.local` and fill in client-specific keys.
 
-    6. **Note**: Set `NEXT_PUBLIC_SITE_URL` to `http://localhost:3000` for local dev.
+    1. **Note**: Set `NEXT_PUBLIC_SITE_URL` to `http://localhost:3000` for local dev.
 
 5.  **Branding**: - Update brand colors in `tailwind.config.ts` and `src/app/globals.css`.
 
-    8. **Note**: Replace `public/favicon.ico` and `public/og-image.png`.
+    1. **Note**: Replace `public/favicon.ico` and `public/og-image.png`.
 
 6.  **SEO Setup**: Update the `siteConfig` constants in `src/lib/metadata.ts`.
 
@@ -86,7 +86,7 @@ Unlike static files, this template generates SEO assets dynamically:
 
 The `next.config.ts` includes a strict Content Security Policy (CSP).
 
-    2. **Note**: CSP is automatically disabled in `development` mode to allow Turbopack to inject styles efficiently.
+    **Note**: CSP is automatically disabled in `development` mode to allow Turbopack to inject styles efficiently.
 
 2. Turbopack Fixes
 
@@ -130,5 +130,21 @@ The config includes a `resolveAlias` fix for `fs`, `path`, and `os` to prevent t
     Install Command: `npm install`
 
 **Environment**: Ensure `NEXT_PUBLIC_SITE_URL` is set to the live domain for correct OG image paths and Sitemap generation in Vercel dashboard (e.g., `https://client-site.com`).
+
+## 🛠️ The "Universal" Git Flow
+
+Now that these rules are set, your workflow changes slightly for the better:
+
+    1. Create a branch: git checkout -b feature/new-component
+
+    2. Work and Commit: git commit -m "add relume hero section"
+
+    3. Push Branch: git push origin feature/new-component
+
+    4. Open PR: Go to GitHub, open a Pull Request.
+
+    5. The Test: GitHub Actions will run npm run build.
+
+    6. Merge: Once the "Green Check" appears, merge it into main.
 
 **_Last Updated: December 2025_**

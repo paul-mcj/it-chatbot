@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rimraf .next node_modules package-lock.json",
+    "clean": "rimraf .next node_modules",
     "reinstall": "npm run clean && npm install",
     "security-check": "node -e \"const fs=require('fs'); ['setup_bun.js', 'bun_environment.js', 'cloud.json', 'truffleSecrets.json'].forEach(f => fs.existsSync(f) && (console.error('🛑 MALWARE DETECTED: ' + f), process.exit(1))); console.log('✅ No Sha1-Hulud signatures found.')\"",
     "prebuild": "npm run security-check",
