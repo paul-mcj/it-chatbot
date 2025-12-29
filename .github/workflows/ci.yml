@@ -34,12 +34,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Python Deps
-        if: hashFiles('**/pyproject.toml') != ''
+      - name: Python Tasks (Only if Poetry exists)
         run: |
-          pip install poetry
-          poetry install
-
-      - name: Python Check (Black)
-        if: hashFiles('**/pyproject.toml') != ''
-        run: poetry run black . --check
+          if [ -f pyproject.toml ]; then
+            pip install poetry
+            poetry install --no-root
+            poetry run black . --check
+          else
+            echo "No pyproject.toml found, skipping Python tasks."
+          fi
