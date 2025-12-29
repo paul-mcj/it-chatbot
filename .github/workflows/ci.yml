@@ -21,19 +21,13 @@ jobs:
 
       - name: JS Security Scan
         if: hashFiles('**/package.json') != ''
-        run: npm run security-check
+        run: npm audit --audit-level=high # No longer needs package.json update
 
       - name: JS Build
         if: hashFiles('**/package.json') != ''
         run: npm run build
 
       # --- PYTHON / DJANGO SECTION ---
-      - name: Setup Python
-        if: hashFiles('**/pyproject.toml') != ''
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
       - name: Python Tasks (Only if Poetry exists)
         run: |
           if [ -f pyproject.toml ]; then
