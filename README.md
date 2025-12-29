@@ -133,7 +133,7 @@ The config includes a `resolveAlias` fix for `fs`, `path`, and `os` to prevent t
 
 ## 🛠️ The "Universal" Git Flow
 
-Once a new client project is made from this cloned repo, you need to ensure that all the yml files in .github folder are correct.
+Once a new client project is made from this cloned repo, you need to ensure that **all the yml files** in .github folder are correct and up-to-date!
 
 Then make sure to go to the remote repo settings on the browser GUI and do the following:
 
@@ -143,7 +143,7 @@ Then make sure to go to the remote repo settings on the browser GUI and do the f
 
     3. Settings > Rules > Rulesets: New ruleset > New branch ruleset call it "Master Branch Protection". Set enforcement status to "active". Add target branch to "include default branch". Leave defaults checked, but also check "Require status checks to pass" -- you must select at least one check name or you will get an error.
 
-        4. CRITICAL STEP: You must run the workflow once (by pushing the files, or by making a new branch and doing a quick blank PR -- you can simply delete these later) before the check name appears here. Once it has run once, search for "secure-automation" in the "Add checks" box and select it ("secure-automation" is the name of the job in the yml script for automation).
+    - CRITICAL STEP: You must run the workflow once (by pushing the files, or by making a new branch and doing a quick blank PR -- you can simply delete these later) before the check name appears here. Once it has run once, search for "secure-automation" in the "Add checks" box and select it ("secure-automation" is the name of the job in the yml script for automation).
 
 Now that these rules are set, your workflow changes slightly for the better:
 

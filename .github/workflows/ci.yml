@@ -7,20 +7,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # --- NODE / JAVASCRIPT SECTION ---
       - name: Setup Node
+        if: hashFiles('**/package.json') != ''
         uses: actions/setup-node@v4
         with:
-          node-version: 22 # Matches your .nvmrc
-          cache: "npm" # Speeds up builds safely
+          node-version: 22
+          cache: "npm"
 
-      - name: Install Dependencies
-        # 1. 'ci' ensures the lockfile isn't changed
-        # 2. 'ignore-scripts' stops Sha1-Hulud from running during install
+      - name: Install JS Dependencies
+        if: hashFiles('**/package.json') != ''
         run: npm ci --ignore-scripts
 
-      - name: Security Scan
-        # Runs the check we added to your package.json
+      - name: JS Security Scan
+        if: hashFiles('**/package.json') != ''
         run: npm run security-check
 
-      - name: Build
+      - name: JS Build
+        if: hashFiles('**/package.json') != ''
         run: npm run build
+
+      # --- PYTHON / DJANGO SECTION ---
+      - name: Setup Python
+        if: hashFiles('**/pyproject.toml') != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python Deps
+        if: hashFiles('**/pyproject.toml') != ''
+        run: |
+          pip install poetry
+          poetry install
+
+      - name: Python Check (Black)
+        if: hashFiles('**/pyproject.toml') != ''
+        run: poetry run black . --check
