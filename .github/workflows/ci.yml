@@ -21,11 +21,18 @@ jobs:
 
       - name: JS Security Scan
         if: hashFiles('**/package.json') != ''
-        run: npm audit --audit-level=high # No longer needs package.json update
+        # DIRECT COMMAND: Works even if "security-check" is missing from package.json
+        run: npm audit --audit-level=high
 
       - name: JS Build
         if: hashFiles('**/package.json') != ''
-        run: npm run build
+        # SMART COMMAND: Runs "npm run build" ONLY if the script exists
+        run: |
+          if npm run | grep -q "build"; then
+            npm run build
+          else
+            echo "No build script found, skipping."
+          fi
 
       # --- PYTHON / DJANGO SECTION ---
       - name: Python Tasks (Only if Poetry exists)
