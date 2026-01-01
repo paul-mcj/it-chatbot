@@ -3,7 +3,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { constructMetadata } from "@/lib/metadata";
-import type { Metadata } from "next";
+import { Container } from "@/components/shared/Container";
+import { SmoothScroll } from "@/components/smooth-scroll";
 
 export const metadata = constructMetadata();
 
@@ -21,11 +22,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <SmoothScroll>
+            <div className="relative flex min-h-screen flex-col">
+              <Navbar />
+              <main className="flex-1">
+                <Container>{children}</Container>
+              </main>
+              <Footer />
+            </div>
+          </SmoothScroll>
         </ThemeProvider>
       </body>
     </html>
