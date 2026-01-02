@@ -4,8 +4,13 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import json from "react-syntax-highlighter/dist/esm/languages/hljs/json";
+import bash from "react-syntax-highlighter/dist/esm/languages/hljs/bash";
+import atomOneDark from "react-syntax-highlighter/dist/esm/styles/hljs/atom-one-dark";
+
+SyntaxHighlighter.registerLanguage("json", json);
+SyntaxHighlighter.registerLanguage("bash", bash);
 
 const itQuestions = [
   "How do I configure a trunk port on a Cisco Catalyst switch?",
@@ -186,7 +191,7 @@ export function ChatBot() {
                             </button>
                             <SyntaxHighlighter
                               {...props}
-                              style={atomDark}
+                              style={atomOneDark}
                               language={match[1]}
                               PreTag="div"
                               className="rounded-md !bg-black/50 border border-gray-800"
