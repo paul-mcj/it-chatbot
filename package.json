@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && npx @cloudflare/next-on-pages",
-    "preview": "npm run build && wrangler pages dev",
+    "build": "next build",
+    "build:cf": "npx @cloudflare/next-on-pages@latest",
+    "preview": "npm run build && npm run build:cf && wrangler pages dev",
     "start": "next start",
     "lint": "next lint",
     "clean": "rimraf .next node_modules",

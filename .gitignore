@@ -13,6 +13,8 @@ node_modules/
 # Bun specific
 bun.lockb
 # (Optional) If you use Bun but want to keep the lockfile, remove the line above
+.dev.vars
+wrangler.jsonc
 
 # ------------------------------------------------------------------------------
 # NEXT.JS & BUILD OUTPUTS
