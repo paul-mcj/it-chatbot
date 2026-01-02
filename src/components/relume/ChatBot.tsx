@@ -116,7 +116,7 @@ export function ChatBot() {
 
   return (
     <>
-      <section className="px-[5%] py-16 md:py-24 lg:py-28 ">
+      <section className="px-0 py-16 md:py-24 lg:py-28 ">
         <div className="container mx-auto">
           <div className="flex flex-col items-center text-center">
             <div className="max-w-lg">
@@ -147,7 +147,7 @@ export function ChatBot() {
             </div>
           </div>
 
-          <div className="mt-16 p-2 flex flex-col gap-4">
+          <div className="mt-16 flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span
                 className={`inline-block w-2 h-2 rounded-full animate-pulse ${current.color} ${current.glow}`}
