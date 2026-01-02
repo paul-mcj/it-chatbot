@@ -3,16 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "assets-global.website-files.com", // Common for Relume/Webflow assets
-      },
-    ],
+    unoptimized: true,
   },
 
   async headers() {
