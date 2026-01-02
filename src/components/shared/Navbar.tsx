@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { ModeToggle } from "./ModeToggle";
@@ -12,21 +11,15 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-const navLinks = [
-  { name: "Features", href: "#" },
-  { name: "About", href: "#" },
-  { name: "Contact", href: "#" },
-];
+const navLinks = [{ name: "About", href: "#" }];
 
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        {/* LOGO */}
         <Link href="/" className="font-bold text-xl">
-          LOGO
+          Home
         </Link>
-
         {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navLinks.map((link) => (
@@ -39,7 +32,14 @@ export function Navbar() {
             </Link>
           ))}
           <ModeToggle />
-          <Button>Get Started</Button>
+          <Link
+            href="https://github.com/paul-mcj/it-chatbot"
+            className="font-bold text-xl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button>GitHub Repo</Button>
+          </Link>
         </nav>
 
         {/* MOBILE NAV */}
@@ -63,7 +63,14 @@ export function Navbar() {
                     {link.name}
                   </Link>
                 ))}
-                <Button className="w-full mt-4">Get Started</Button>
+                <Link
+                  href="https://github.com/paul-mcj/it-chatbot"
+                  className="font-bold text-xl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full mt-4">GitHub Repo</Button>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

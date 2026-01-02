@@ -2,8 +2,9 @@ import { Metadata } from "next";
 
 // centralize your site's constants for easy client handoff
 export const SITE_CONFIG = {
-  name: "Client Web Name",
-  description: "High-end digital experiences built with precision.",
+  name: "IT ChatBot",
+  description:
+    "Instant VLAN configurations, Cisco/Juniper CLI generation, and real-time troubleshooting at the Edge. Built on Cloudflare's global network for zero-latency IT support.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   twitterHandle: "@client_handle",
 };

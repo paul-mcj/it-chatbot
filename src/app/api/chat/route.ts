@@ -1,74 +1,13 @@
-// TODO: 1.
-// import { NextRequest } from 'next/server';
-
-// export const runtime = 'edge'; // Crucial for Cloudflare Workers AI
-
-// export async function POST(req: NextRequest) {
-//   const { prompt } = await req.json();
-
-//   // @ts-ignore - The AI binding is provided by Cloudflare env
-//   const ai = process.env.AI;
-
-//   const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
-//     messages: [
-//       {
-//         role: 'system',
-//         content: `You are an expert IT Infrastructure and Networking Assistant.
-//                   When asked for configs, always provide valid JSON.
-//                   Focus on best practices for CI/CD, security, and low-latency networking.`
-//       },
-//       { role: 'user', content: prompt }
-//     ],
-//   });
-
-//   return new Response(JSON.stringify(response), {
-//     headers: { 'Content-Type': 'application/json' },
-//   });
-// }
-
-// TODO: 2.
-// import { NextRequest } from 'next/server';
-
-// export const runtime = 'edge';
-
-// export async function POST(req: NextRequest) {
-//   try {
-//     const { message } = await req.json();
-
-//     // Access the binding from the Cloudflare environment
-//     // @ts-ignore
-//     const ai = process.env.AI;
-
-//     if (!ai) {
-//       return new Response("AI Binding not found", { status: 500 });
-//     }
-
-//     const response = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
-//       messages: [
-//         {
-//           role: 'system',
-//           content: `You are a Senior Infrastructure Engineer.
-//           When users ask about networking or IT:
-//           1. Provide clear, professional explanations.
-//           2. Always include a code block with a sample configuration (YAML, JSON, or Cisco CLI) if applicable.
-//           3. Keep security best practices (like Zero Trust) in mind.`
-//         },
-//         { role: 'user', content: message }
-//       ],
-//     });
-
-//     return new Response(JSON.stringify(response), {
-//       headers: { 'Content-Type': 'application/json' },
-//     });
-//   } catch (e: any) {
-//     return new Response(e.message, { status: 500 });
-//   }
-// }
-
-// TODO: 3.
 import { NextRequest } from "next/server";
 
 export const runtime = "edge";
+
+export async function HEAD() {
+  return new Response(null, {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -86,8 +25,25 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "system",
-          content:
-            "You are an expert IT Infrastructure Assistant. Provide JSON configs when asked.",
+          content: `
+You are an expert IT Infrastructure and Network Engineer. 
+Your goal is to provide production-ready, technically accurate configurations and troubleshooting steps.
+
+### OUTPUT GUIDELINES:
+1. FORMATTING: Use Markdown code blocks for all CLI commands, JSON, or scripts. 
+2. COPY-PASTE READY: Ensure code blocks contain only valid syntax. Do not include line numbers or conversational text inside the code block.
+3. STRUCTURE: 
+   - Start with a 1-sentence summary of the solution.
+   - Provide the primary Configuration/Code block.
+   - Follow with a "Verification" section (how to check it works).
+   - End with a brief "Best Practices" or "Security Note."
+4. DEFAULTS: If the user doesn't specify a brand, assume Cisco IOS for networking or Linux (Bash) for server tasks.
+
+### CONSTRAINTS:
+- Do not explain basic concepts unless asked.
+- If a task is dangerous (e.g., reloading a switch), include a '⚠️ WARNING' prefix.
+- Use professional, concise technical language.
+`,
         },
         { role: "user", content: message },
       ],
@@ -98,8 +54,6 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (e: any) {
-    // By using 'any' in the catch or casting here,
-    // we stop the "Property message does not exist on type unknown" error.
     console.error("Worker Error:", e.message);
 
     return new Response(
