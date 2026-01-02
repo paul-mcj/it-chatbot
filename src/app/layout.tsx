@@ -6,6 +6,8 @@ import { constructMetadata } from "@/lib/metadata";
 import { Container } from "@/components/shared/Container";
 import { SmoothScroll } from "@/components/smooth-scroll";
 
+export const runtime = "edge";
+
 export const metadata = constructMetadata();
 
 export default function RootLayout({
