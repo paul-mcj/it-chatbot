@@ -20,6 +20,7 @@ wrangler.jsonc
 # NEXT.JS & BUILD OUTPUTS
 # ------------------------------------------------------------------------------
 .next/
+.vercel
 out/
 build/
 dist/

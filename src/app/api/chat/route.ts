@@ -1,64 +1,151 @@
 import { NextRequest } from "next/server";
+// @ts-ignore
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
 export const runtime = "edge";
 
-export async function HEAD() {
+export async function OPTIONS() {
   return new Response(null, {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, HEAD, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
   });
+}
+
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
+
+// --- REVISED TOOL HELPERS WITH ERROR CATCHING ---
+async function getAvailableIps(prefixId: number, token: string) {
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/ipam/prefixes/${prefixId}/available-ips/`,
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    if (!res.ok) return "Error: NetBox returned an error code.";
+    const data = (await res.json()) as unknown[];
+    return JSON.stringify(data.slice(0, 10));
+  } catch (e) {
+    return "Error: Could not reach NetBox.";
+  }
+}
+
+async function getChangelog(token: string) {
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/extras/object-changes/?limit=5`,
+      {
+        headers: {
+          Authorization: `Token ${token}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    if (!res.ok) return "Error: NetBox returned an error code.";
+    const data = (await res.json()) as any;
+    return JSON.stringify(
+      data.results.map((r: any) => ({
+        time: r.time,
+        user: r.user_name,
+        action: r.action,
+        object: r.changed_object_type,
+      }))
+    );
+  } catch (e) {
+    return "Error: Could not reach NetBox.";
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { message } = (await req.json()) as { message: string };
-    const ai = (process.env as any).AI;
+    const context = getRequestContext();
+    const ai =
+      (context?.env as any)?.AI || ((req as any).context?.env as any)?.AI;
+    const token =
+      (context?.env as any)?.NETBOX_TOKEN || process.env.NETBOX_TOKEN;
 
-    if (!ai) {
-      return new Response(JSON.stringify({ error: "AI binding not found" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
+    const tools = [
+      {
+        name: "getAvailableIps",
+        description:
+          "Fetch available IP addresses from NetBox. Use ID 1 for demo.",
+        parameters: {
+          type: "object",
+          properties: { prefixId: { type: "number" } },
+          required: ["prefixId"],
+        },
+      },
+      {
+        name: "getChangelog",
+        description: "Fetch the most recent configuration changes from NetBox.",
+        parameters: { type: "object", properties: {} },
+      },
+    ];
 
+    // 1. Initial Call
     const response = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+      tools,
       messages: [
         {
           role: "system",
-          content: `
-You are an expert IT Infrastructure and Network Engineer. 
-Your goal is to provide production-ready, technically accurate configurations and troubleshooting steps.
-
-### OUTPUT GUIDELINES:
-1. FORMATTING: Use Markdown code blocks for all CLI commands, JSON, or scripts. 
-2. COPY-PASTE READY: Ensure code blocks contain only valid syntax. Do not include line numbers or conversational text inside the code block.
-3. STRUCTURE: 
-   - Start with a 1-sentence summary of the solution.
-   - Provide the primary Configuration/Code block.
-   - Follow with a "Verification" section (how to check it works).
-   - End with a brief "Best Practices" or "Security Note."
-4. DEFAULTS: If the user doesn't specify a brand, assume Cisco IOS for networking or Linux (Bash) for server tasks.
-
-### CONSTRAINTS:
-- Do not explain basic concepts unless asked.
-- If a task is dangerous (e.g., reloading a switch), include a '⚠️ WARNING' prefix.
-- Use professional, concise technical language.
-`,
+          content: "You are an IT Assistant. Use tools to get data.",
         },
         { role: "user", content: message },
       ],
     });
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (e: any) {
-    console.error("Worker Error:", e.message);
+    // 2. Handle Tool Call
+    if (response.tool_calls && response.tool_calls.length > 0) {
+      const toolCall = response.tool_calls[0];
+      let toolResult = "";
 
-    return new Response(
-      JSON.stringify({ error: e.message || "An unknown error occurred" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
+      if (toolCall.name === "getAvailableIps") {
+        toolResult = await getAvailableIps(
+          toolCall.arguments.prefixId || 1,
+          token
+        );
+      } else if (toolCall.name === "getChangelog") {
+        toolResult = await getChangelog(token);
+      }
+
+      // 3. Final Synthesis - FIXING THE 5006 ERROR
+      // We must pass the role, content, AND tool_call_id
+      const finalResponse = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+        messages: [
+          {
+            role: "system",
+            content: "Summarize this NetBox data for the user.",
+          },
+          { role: "user", content: message },
+          {
+            role: "assistant",
+            content: "", // Content must exist even if empty
+            tool_calls: [toolCall],
+          },
+          {
+            role: "tool",
+            name: toolCall.name,
+            tool_call_id: toolCall.id, // ID is often required in newer models
+            content: toolResult,
+          },
+        ],
+      });
+
+      return new Response(JSON.stringify(finalResponse));
+    }
+
+    return new Response(JSON.stringify(response));
+  } catch (e: any) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
 }
