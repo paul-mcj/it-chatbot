@@ -11,13 +11,24 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-const navLinks = [{ name: "About", href: "#" }];
+const navLinks = [
+  // TODO: need about page!
+  { name: "About", href: "#" },
+  { name: "GitHub Repo", href: "https://github.com/paul-mcj/it-chatbot" },
+  {
+    name: "View Netbox",
+    href: "http://localhost:8000/ipam/prefixes/1/ip-addresses/",
+  },
+];
 
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="font-bold text-xl">
+        <Link
+          href="#"
+          className="font-bold text-xl transition-colors dark:hover:text-gray-300 hover:text-gray-600"
+        >
           Home
         </Link>
         {/* DESKTOP NAV */}
@@ -26,20 +37,18 @@ export function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="transition-colors hover:text-primary"
+              target={
+                link.name === "GitHub Repo" || link.name === "View Netbox"
+                  ? "_blank"
+                  : ""
+              }
+              rel="noopener noreferrer"
+              className="transition-colors dark:hover:text-gray-300 hover:text-gray-600"
             >
               {link.name}
             </Link>
           ))}
           <ModeToggle />
-          <Link
-            href="https://github.com/paul-mcj/it-chatbot"
-            className="font-bold text-xl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Button>GitHub Repo</Button>
-          </Link>
         </nav>
 
         {/* MOBILE NAV */}
@@ -58,19 +67,17 @@ export function Navbar() {
                   <Link
                     key={link.name}
                     href={link.href}
+                    target={
+                      link.name === "GitHub Repo" || link.name === "View Netbox"
+                        ? "_blank"
+                        : ""
+                    }
+                    rel="noopener noreferrer"
                     className="text-lg font-semibold"
                   >
                     {link.name}
                   </Link>
                 ))}
-                <Link
-                  href="https://github.com/paul-mcj/it-chatbot"
-                  className="font-bold text-xl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button className="w-full mt-4">GitHub Repo</Button>
-                </Link>
               </div>
             </SheetContent>
           </Sheet>

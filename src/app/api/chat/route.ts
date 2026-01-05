@@ -1,8 +1,23 @@
 import { NextRequest } from "next/server";
 // @ts-ignore
 import { getRequestContext } from "@cloudflare/next-on-pages";
+import { SYSTEM_PROMPT, NETBOX_TOOLS } from "./tools";
+import { netboxQuery, netboxProvision, netboxUpdate } from "./helpers";
+
+interface NetBoxArgs {
+  description?: string;
+  prefixId?: number;
+  query?: string;
+  id?: number;
+  status?: string;
+  limit?: number;
+}
 
 export const runtime = "edge";
+
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -15,55 +30,148 @@ export async function OPTIONS() {
   });
 }
 
-export async function HEAD() {
-  return new Response(null, { status: 200 });
-}
+// export async function POST(req: NextRequest) {
+//   try {
+//     const { message } = (await req.json()) as { message: string };
+//     const context = getRequestContext();
+//     const ai =
+//       (context?.env as any)?.AI || ((req as any).context?.env as any)?.AI;
+//     const token =
+//       (context?.env as any)?.NETBOX_TOKEN || process.env.NETBOX_TOKEN;
 
-// --- REVISED TOOL HELPERS WITH ERROR CATCHING ---
-async function getAvailableIps(prefixId: number, token: string) {
-  try {
-    const res = await fetch(
-      `http://127.0.0.1:8000/api/ipam/prefixes/${prefixId}/available-ips/`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
-    if (!res.ok) return "Error: NetBox returned an error code.";
-    const data = (await res.json()) as unknown[];
-    return JSON.stringify(data.slice(0, 10));
-  } catch (e) {
-    return "Error: Could not reach NetBox.";
-  }
-}
+//     // 1. Intent Detection
+//     const response = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+//       tools: NETBOX_TOOLS,
+//       messages: [
+//         {
+//           role: "system",
+//           content: SYSTEM_PROMPT,
+//         },
+//         { role: "user", content: message },
+//       ],
+//     });
 
-async function getChangelog(token: string) {
-  try {
-    const res = await fetch(
-      `http://127.0.0.1:8000/api/extras/object-changes/?limit=5`,
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-          Accept: "application/json",
-        },
-      }
-    );
-    if (!res.ok) return "Error: NetBox returned an error code.";
-    const data = (await res.json()) as any;
-    return JSON.stringify(
-      data.results.map((r: any) => ({
-        time: r.time,
-        user: r.user_name,
-        action: r.action,
-        object: r.changed_object_type,
-      }))
-    );
-  } catch (e) {
-    return "Error: Could not reach NetBox.";
-  }
-}
+//     // 2. Execution Loop
+//     const result = response.result || response;
+//     const toolCalls = result.tool_calls || [];
+
+//     if (toolCalls.length > 0) {
+//       const toolCall = toolCalls[0];
+//       let toolResult = "";
+
+//       // Dynamic Routing based on the Concrete Tool Name
+//       switch (toolCall.name) {
+//         case "netbox_system_status":
+//           toolResult = JSON.stringify(await netboxQuery("/api/status/", token));
+//           break;
+
+//         case "netbox_inspect_prefix":
+//           toolResult = JSON.stringify(
+//             await netboxQuery(
+//               `/api/ipam/prefixes/${args.prefixId || 1}/`,
+//               token
+//             )
+//           );
+//           break;
+
+//         case "netbox_search":
+//           toolResult = JSON.stringify(
+//             await netboxQuery(
+//               `/api/ipam/ip-addresses/?q=${args.query || ""}`,
+//               token
+//             )
+//           );
+//           break;
+
+//         case "netbox_reserve_next_ip":
+//           toolResult = JSON.stringify(
+//             await netboxProvision(
+//               token,
+//               undefined,
+//               args.description,
+//               args.prefixId
+//             )
+//           );
+//           break;
+
+//         case "netbox_update_ip":
+//           if (args.id === undefined) {
+//             toolResult = JSON.stringify({
+//               error: "Missing required ID for update.",
+//             });
+//           } else {
+//             toolResult = JSON.stringify(
+//               await netboxUpdate(token, args.id, {
+//                 description: args.description,
+//                 status: args.status,
+//               })
+//             );
+//           }
+//           break;
+
+//         case "netbox_get_history":
+//           toolResult = JSON.stringify(
+//             await netboxQuery(
+//               `/api/extras/object-changes/?limit=${args.limit || 5}`,
+//               token
+//             )
+//           );
+//           break;
+
+//         default:
+//           toolResult = JSON.stringify({
+//             error: `Unknown tool: ${toolCall.name}`,
+//             message:
+//               "The operator attempted to use a tool that is not configured.",
+//           });
+//           break;
+//       }
+
+//       // 3. Final Synthesis
+//       const finalResponse = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+//         // tools: [],
+//         messages: [
+//           {
+//             role: "system",
+//             content: `You are the NetBox Architect.
+//       CRITICAL: The tool execution is COMPLETE. The data provided in the 'tool' role is the final result from the database.
+//       DO NOT suggest new commands. DO NOT use technical flags like '--ip' or '--q'.
+
+//       Your task:
+//       1. Review the JSON result provided below.
+//       2. Explain the outcome to the user in natural, professional language.
+//       3. If the data shows a success, confirm the specific IP or change.
+//       4. If the data is an error, explain the technical reason why.
+
+//       Always speak as if you just finished performing the task yourself.`,
+//           },
+//           { role: "user", content: message },
+//           {
+//             role: "assistant",
+//             content: null, // Ensure content is null when tool_calls are present
+//             tool_calls: [toolCall],
+//           },
+//           {
+//             role: "tool",
+//             name: toolCall.name,
+//             tool_call_id: toolCall.id,
+//             content: toolResult, // This must be the stringified JSON
+//           },
+//         ],
+//       });
+
+//       const finalResult = finalResponse.result || finalResponse;
+//       const finalMessage =
+//         finalResult.response ||
+//         "Action completed, but no summary text was generated.";
+
+//       return Response.json({ response: finalMessage });
+//     }
+//   } catch (e: any) {
+//     // TODO: make sure .map of this is colored properly in the frontend conversation
+//     return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+//   }
+// }
 
 export async function POST(req: NextRequest) {
   try {
@@ -74,78 +182,117 @@ export async function POST(req: NextRequest) {
     const token =
       (context?.env as any)?.NETBOX_TOKEN || process.env.NETBOX_TOKEN;
 
-    const tools = [
-      {
-        name: "getAvailableIps",
-        description:
-          "Fetch available IP addresses from NetBox. Use ID 1 for demo.",
-        parameters: {
-          type: "object",
-          properties: { prefixId: { type: "number" } },
-          required: ["prefixId"],
-        },
-      },
-      {
-        name: "getChangelog",
-        description: "Fetch the most recent configuration changes from NetBox.",
-        parameters: { type: "object", properties: {} },
-      },
-    ];
-
-    // 1. Initial Call
+    // 1. Intent Detection
     const response = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
-      tools,
+      tools: NETBOX_TOOLS, // Use 'tools' key
       messages: [
-        {
-          role: "system",
-          content: "You are an IT Assistant. Use tools to get data.",
-        },
+        { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: message },
       ],
     });
 
-    // 2. Handle Tool Call
-    if (response.tool_calls && response.tool_calls.length > 0) {
-      const toolCall = response.tool_calls[0];
+    // Handle nested Cloudflare response
+    const result = response.result || response;
+    const toolCalls = result.tool_calls || [];
+
+    if (toolCalls.length > 0) {
+      const toolCall = toolCalls[0];
+      const args = toolCall.arguments as NetBoxArgs;
+
+      // --- RE-INITIALIZE toolResult HERE ---
       let toolResult = "";
 
-      if (toolCall.name === "getAvailableIps") {
-        toolResult = await getAvailableIps(
-          toolCall.arguments.prefixId || 1,
-          token
-        );
-      } else if (toolCall.name === "getChangelog") {
-        toolResult = await getChangelog(token);
+      switch (toolCall.name) {
+        case "netbox_system_status":
+          toolResult = JSON.stringify(await netboxQuery("/api/status/", token));
+          break;
+        case "netbox_inspect_prefix":
+          toolResult = JSON.stringify(
+            await netboxQuery(
+              `/api/ipam/prefixes/${args.prefixId || 1}/`,
+              token
+            )
+          );
+          break;
+        case "netbox_search":
+          toolResult = JSON.stringify(
+            await netboxQuery(
+              `/api/ipam/ip-addresses/?q=${args.query || ""}`,
+              token
+            )
+          );
+          break;
+        case "netbox_reserve_next_ip":
+          toolResult = JSON.stringify(
+            await netboxProvision(
+              token,
+              undefined,
+              args.description,
+              args.prefixId
+            )
+          );
+          break;
+        case "netbox_update_ip":
+          if (args.id === undefined) {
+            toolResult = JSON.stringify({
+              error: "Missing required ID for update.",
+            });
+          } else {
+            toolResult = JSON.stringify(
+              await netboxUpdate(token, args.id, {
+                description: args.description,
+                status: args.status,
+              })
+            );
+          }
+          break;
+        case "netbox_get_history":
+          toolResult = JSON.stringify(
+            await netboxQuery(
+              `/api/extras/object-changes/?limit=${args.limit || 5}`,
+              token
+            )
+          );
+          break;
+        default:
+          toolResult = JSON.stringify({
+            error: `Unknown tool: ${toolCall.name}`,
+          });
+          break;
       }
 
-      // 3. Final Synthesis - FIXING THE 5006 ERROR
-      // We must pass the role, content, AND tool_call_id
+      // 2. Final Synthesis (The Summary)
+      // Note: We don't pass 'tools' here because we want a text response, not a new tool call.
       const finalResponse = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
         messages: [
           {
             role: "system",
-            content: "Summarize this NetBox data for the user.",
+            content:
+              "You are the NetBox Architect. Summarize the tool result precisely. The job is done; just report the facts.",
           },
           { role: "user", content: message },
-          {
-            role: "assistant",
-            content: "", // Content must exist even if empty
-            tool_calls: [toolCall],
-          },
+          { role: "assistant", content: "", tool_calls: [toolCall] },
           {
             role: "tool",
             name: toolCall.name,
-            tool_call_id: toolCall.id, // ID is often required in newer models
+            tool_call_id: toolCall.id,
             content: toolResult,
           },
         ],
       });
 
-      return new Response(JSON.stringify(finalResponse));
+      const finalResult = finalResponse.result || finalResponse;
+      return Response.json({
+        response: finalResult.response || "Action complete.",
+      });
     }
 
-    return new Response(JSON.stringify(response));
+    // Fallback if no tool was called
+    return Response.json({
+      response: result.response || "I'm not sure how to help with that.",
+    });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
+    console.error("Route Error:", e.message);
+    return Response.json({ error: e.message }, { status: 500 });
   }
 }

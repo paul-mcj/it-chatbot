@@ -23,7 +23,7 @@ export function Footer() {
               LinkedIn
             </Link>
             <Link
-              href="https://github.com/paul-mcj/it-chatbot"
+              href="https://github.com/paul-mcj/"
               className="hover:text-primary"
               target="_blank"
               rel="noopener noreferrer"
