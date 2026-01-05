@@ -53,7 +53,9 @@ export function ChatBot() {
 
   const [status, setStatus] = useState<Status>("online");
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [input, setInput] = useState("");
+  const [inputSnapshot, setInputSnapshot] = useState(input);
   const [response, setResponse] = useState("");
   const [conversation, setConversation] = useState<
     { input: string; response: string }[]
@@ -75,8 +77,10 @@ export function ChatBot() {
     // Guard clause: stop if empty or already working
     if (!messageToSend || isLoading) return;
 
-    setIsLoading(true);
+    setInputSnapshot(messageToSend);
     setInput(""); // Clear input immediately for better UX
+    setIsFetching(() => true);
+    setIsLoading(true);
 
     try {
       const res = await fetch("/api/chat", {
@@ -91,10 +95,6 @@ export function ChatBot() {
 
       const data = (await res.json()) as { response?: string; error?: string };
 
-      // Robust extraction:
-      // 1. Check for the 'response' key we defined in the API
-      // 2. Check for a generic 'error' key
-      // 3. Fallback to stringifying the whole data object so we at least see the raw JSON
       const botResponse = data.response || data.error || JSON.stringify(data);
 
       setConversation((prev) => [
@@ -113,11 +113,12 @@ export function ChatBot() {
         {
           input: messageToSend,
           response:
-            "⚠️ Error: I couldn't connect to the NetBox AI service. Please check your connection.",
+            "⚠️ Error: Couldn't connect to the NetBox AI service. Please check your connection.",
         },
       ]);
     } finally {
       setIsLoading(false);
+      setIsFetching(false);
     }
   };
 
@@ -194,29 +195,45 @@ export function ChatBot() {
               className="h-9 px-5 bg-gradient-to-br from-red-600 to-blue-600 shadow-lg ring-1 ring-white/10 hover:brightness-110"
               onClick={handleGeneratePrompt}
             >
-              ⚡ Generate Prompt
+              ⚡ Generate Request
             </Button>
           </div>
         </div>
       </header>
-
-      {isLoading && (
-        <div className="mx-auto">
-          <div className="flex items-center gap-3 bg-green-500/90 px-4 py-2 rounded-full w-max shadow-xl shadow-green-900/20 animate-pulse">
-            <span className="text-[11px] font-bold uppercase tracking-widest">
-              Processing...
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* --- SCROLLABLE CONVERSATION AREA --- */}
       <main className="flex-1 flex-col-reverse overflow-y-auto py-10 px-72">
         <div className="max-w-4xl mx-auto flex flex-col gap-10 pb-56">
-          {conversation.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-gray-500/50 border-2 border-dashed border-gray-800 rounded-3xl">
-              <p className="font-medium">
-                System Idle. Awaiting Operator Instruction...
+          {isFetching && (
+            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              {/* User Input: Nice rounded card to the top right */}
+              <div className="self-end max-w-[80%] px-5 py-3 rounded-2xl rounded-tr-none bg-blue-600 text-white text-[15px] shadow-xl shadow-blue-900/20">
+                <span className="opacity-60 text-[10px] uppercase font-black block mb-1 tracking-widest">
+                  Operator
+                </span>
+                {inputSnapshot}
+              </div>
+
+              {/* Bot Response: Loading State */}
+              <div
+                className={`w-full p-6 border rounded-2xl bg-gray-900/40 shadow-inner font-mono text-[14px] text-gray-200 border-l-8 border-l-yellow-500 backdrop-blur-sm animate-pulse`}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-yellow-500">
+                    NetBox-AI System
+                  </span>
+                </div>
+                <div className="whitespace-pre-wrap leading-relaxed opacity-95">
+                  Processing request...
+                </div>
+              </div>
+            </div>
+          )}
+          {conversation.length === 0 && !isFetching ? (
+            <div className="flex flex-col items-center justify-center h-48 text-gray-500/50 border-2 border-dashed border-gray-800 rounded-3xl">
+              <p className="font-medium text-center">
+                System Idle. Awaiting Operator Instruction. Please issue network
+                command below...
               </p>
             </div>
           ) : (
@@ -301,7 +318,7 @@ export function ChatBot() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && askBot()}
               placeholder={`${
-                isLoading ? "Processing..." : "Issue network command"
+                isLoading ? "Processing request..." : "Issue network command"
               }`}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
