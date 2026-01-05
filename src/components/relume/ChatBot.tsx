@@ -14,31 +14,37 @@ const generatePrompts = [
   // --- Infrastructure Insights (Inspect & Status) ---
   "Run a system check to verify NetBox connectivity and version.",
   "How full is our 10.0.0.0/24 subnet right now?",
-  "Give me a utilization report for prefix ID 1.",
+  "Give me a utilization report for the prefix network.",
   "Is the NetBox API heartbeat healthy?",
 
   // --- Automated Provisioning (The "Agent" Logic) ---
   "Reserve the next available IP for a 'Production-Web-Server'.",
-  "I need a new address for an 'IoT-Gateway' in the demo network.",
+  "Reserve the next available IP for an 'IoT-Gateway'.",
+  "Reserve the next available IP for a 'Remote-Soundbar'.",
+  "I need a new address for a 'Management Router' in the demo network.",
   "Provision an IP for a 'Temp-User-Workstation' with a 'reserved' status.",
+  "Provision an IP for an office 'Temperature Sensor' with a 'active' status.",
   "Find a free gap in 10.0.0.0/24 and assign it to 'Backup-Vault'.",
+  "Find a free gap in 10.0.0.0/24 and assign it to 'Conference Room C Projector'.",
 
   // --- Search & Discovery ---
+  "Who is currently assigned to the IP 10.0.0.2?",
   "Who is currently assigned to the IP 10.0.0.5?",
+  "Who is currently assigned to the IP 10.0.0.12?",
   "Search the database for any devices labeled 'Scanner'.",
-  "Find all IP records that contain the string 'test'.",
-  "Locate the record for our core gateway.",
+  "Search the database for any devices labeled 'Server'.",
+  "Find all IP records that contain the string 'IoT'.",
 
   // --- Maintenance & Modification (PATCH) ---
-  "Update IP ID 42: Change the status to 'deprecated'.",
-  "Modify the description for IP ID 15 to 'Legacy Hardware'.",
+  "Update IP ID 3: Change the status to 'deprecated'.",
+  "Modify the description for IP ID 5 to 'Legacy Hardware'.",
+  "Mark IP ID 1 as 'offline' in the system.",
   "Mark IP ID 10 as 'offline' in the system.",
   "Change the label of the last provisioned IP to 'Decommissioned'.",
 
   // --- Audit & Forensics (The Logs) ---
   "Show me the last 5 changes made to the network topology.",
   "Who was the last operator to modify an IP address?",
-  "Give me a history of recent object changes in NetBox.",
   "What happened in the audit log over the last few minutes?",
 ];
 

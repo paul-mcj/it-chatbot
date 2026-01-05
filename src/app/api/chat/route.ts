@@ -168,7 +168,6 @@ export async function OPTIONS() {
 //       return Response.json({ response: finalMessage });
 //     }
 //   } catch (e: any) {
-//     // TODO: make sure .map of this is colored properly in the frontend conversation
 //     return new Response(JSON.stringify({ error: e.message }), { status: 500 });
 //   }
 // }
@@ -267,8 +266,15 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: "system",
-            content:
-              "You are the NetBox Architect. Summarize the tool result precisely. The job is done; just report the facts.",
+            content: `You are the NetBox Architect.
+//       CRITICAL: The tool execution is COMPLETE. Your job is simply to summarize what has been done. The data provided in the 'tool' role is the final result from the database.
+//       DO NOT suggest new commands. DO NOT use technical flags like '--ip' or '--q'.
+//       Your task:
+//       1. Review the finalResponse.result provided below.
+//       2. Explain that outcome to the user in natural, professional language.
+//       3. If the data shows a success, confirm the specific IP, status change, etc, whatever details are necessary and natural.
+//       4. If the data processed results in an error, explain the technical reason why -- do NOT give instructions/steps/commands/ etc. to the user, only explain what the error is.
+//       Always speak as if you just finished performing the task yourself. NEVER tell the user to run another command EVER!`,
           },
           { role: "user", content: message },
           { role: "assistant", content: "", tool_calls: [toolCall] },
