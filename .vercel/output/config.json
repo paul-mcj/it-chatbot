@@ -184,7 +184,7 @@
       "handle": "hit"
     },
     {
-      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|0q\\-OtMOuZbKEoR6N2m35c)/.+",
+      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|AWG\\-xxfNYCfu3OYSxub6i)/.+",
       "headers": {
         "cache-control": "public,max-age=31536000,immutable"
       },

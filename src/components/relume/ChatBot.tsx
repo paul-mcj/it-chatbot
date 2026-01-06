@@ -3,49 +3,90 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-import json from "react-syntax-highlighter/dist/esm/languages/hljs/json";
-import bash from "react-syntax-highlighter/dist/esm/languages/hljs/bash";
 
-SyntaxHighlighter.registerLanguage("json", json);
-SyntaxHighlighter.registerLanguage("bash", bash);
+const networkDevices = [
+  "Core Switch",
+  "Edge Router",
+  "Wireless Access Point",
+  "Network Printer",
+  "VoIP Desk Phone",
+  "IP Security Camera",
+  "High-Performance Workstation",
+  "Executive Laptop",
+  "Database Server",
+  "Hypervisor Host",
+  "NAS Storage Array",
+  "Network Load Balancer",
+  "Smart Conference Projector",
+  "Digital Signage Display",
+  "VR Collaboration Station",
+  "3D Printer",
+  "Networked Scanner",
+  "Cloud Gateway Appliance",
+  "Firewall Appliance",
+  "Network Time Server",
+  "Rack-Mount KVM Switch",
+  "Data Center PDU",
+  "Fiber Optic Media Converter",
+  "Wireless Bridge",
+  "Network Analyzer",
+  "Satellite Internet Modem",
+  "Networked Audio System",
+  "Access Control Panel",
+  "Biometric Badge Reader",
+  "Industrial PLC",
+  "IoT Temperature Sensor",
+  "Smart Lighting Controller",
+  "Uninterruptible Power Supply (UPS)",
+  "Environmental Monitor",
+  "Point of Sale (POS) Terminal",
+  "Building Automation Gateway",
+  "Video Encoder",
+  "VPN Concentrator",
+];
 
 const generatePrompts = [
   // --- Infrastructure Insights (Inspect & Status) ---
   "Run a system check to verify NetBox connectivity and version.",
-  "How full is our 10.0.0.0/24 subnet right now?",
-  "Give me a utilization report for the prefix network.",
   "Is the NetBox API heartbeat healthy?",
+  // FIXME: these 4 should be implemented later
+  // "What is the first available IP in the 10.0.0.0/24 prefix?",
+  // "How many child IPs are assigned under the 10.0.0.0/24 prefix?",
+  // "How many available IPs remain in the 10.0.0.0/24 prefix?",
+  // "What is the utilization rate of the 10.0.0.0/24 prefix?",
 
   // --- Automated Provisioning (The "Agent" Logic) ---
-  "Reserve the next available IP for a 'Production-Web-Server'.",
-  "Reserve the next available IP for an 'IoT-Gateway'.",
-  "Reserve the next available IP for a 'Remote-Soundbar'.",
-  "I need a new address for a 'Management Router' in the demo network.",
-  "Provision an IP for a 'Temp-User-Workstation' with a 'reserved' status.",
-  "Provision an IP for an office 'Temperature Sensor' with a 'active' status.",
-  "Find a free gap in 10.0.0.0/24 and assign it to 'Backup-Vault'.",
-  "Find a free gap in 10.0.0.0/24 and assign it to 'Conference Room C Projector'.",
+  `Reserve the next available IP for a device named ${
+    networkDevices[Math.floor(Math.random() * networkDevices.length)]
+  }.`,
+  `I need a new address for a device called ${
+    networkDevices[Math.floor(Math.random() * networkDevices.length)]
+  } in the demo network.`,
+  `Find a free gap in 10.0.0.0/24 and assign it to a device named ${
+    networkDevices[Math.floor(Math.random() * networkDevices.length)]
+  }.`,
 
   // --- Search & Discovery ---
-  "Who is currently assigned to the IP 10.0.0.2?",
-  "Who is currently assigned to the IP 10.0.0.5?",
-  "Who is currently assigned to the IP 10.0.0.12?",
-  "Search the database for any devices labeled 'Scanner'.",
+  `Who is currently assigned to the IP 10.0.0.${
+    Math.floor(Math.random() * 64) + 64
+  }?`,
+  `Who is currently assigned to the IP 10.0.0.${
+    Math.floor(Math.random() * 63) + 1
+  }?`,
+  `Who is currently assigned to the IP 10.0.0.${
+    Math.floor(Math.random() * 64) + 128
+  }?`,
+  `Who is currently assigned to the IP 10.0.0.${
+    Math.floor(Math.random() * 63) + 192
+  }?`,
+  "Search the database for any devices labeled 'Printer'.",
   "Search the database for any devices labeled 'Server'.",
-  "Find all IP records that contain the string 'IoT'.",
 
   // --- Maintenance & Modification (PATCH) ---
-  "Update IP ID 3: Change the status to 'deprecated'.",
-  "Modify the description for IP ID 5 to 'Legacy Hardware'.",
-  "Mark IP ID 1 as 'offline' in the system.",
-  "Mark IP ID 10 as 'offline' in the system.",
-  "Change the label of the last provisioned IP to 'Decommissioned'.",
+  // FIXME: implement functionality later
 
   // --- Audit & Forensics (The Logs) ---
-  "Show me the last 5 changes made to the network topology.",
-  "Who was the last operator to modify an IP address?",
-  "What happened in the audit log over the last few minutes?",
+  // FIXME: implement functionality later
 ];
 
 export function ChatBot() {
@@ -156,7 +197,7 @@ export function ChatBot() {
   const current = statusConfig[status];
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden font-sans">
+    <div className="relative flex flex-col w-full font-sans overflow-hidden">
       <header className="flex-none pt-12 pb-12 px-6 border-gray-800/50 z-20">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="mb-5 text-6xl font-bold md:mb-6 md:text-9xl lg:text-10xl text-[44px] tracking-tight">
@@ -201,8 +242,8 @@ export function ChatBot() {
         </div>
       </header>
       {/* --- SCROLLABLE CONVERSATION AREA --- */}
-      <main className="flex-1 flex-col-reverse overflow-y-auto py-10 px-72">
-        <div className="max-w-4xl mx-auto flex flex-col gap-10 pb-56">
+      <main className="flex-col-reverse flex-1 overflow-y-auto no-scrollbar py-10 px-4 lg:px-80">
+        <div className="max-w-4xl mx-auto flex flex-col gap-10 pb-64">
           {isFetching && (
             <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
               {/* User Input: Nice rounded card to the top right */}
@@ -215,11 +256,11 @@ export function ChatBot() {
 
               {/* Bot Response: Loading State */}
               <div
-                className={`w-full p-6 border rounded-2xl bg-gray-900/40 shadow-inner font-mono text-[14px] text-gray-200 border-l-8 border-l-yellow-500 backdrop-blur-sm animate-pulse`}
+                className={`w-full p-6 border rounded-2xl bg-gray-900/40 shadow-inner font-mono text-[14px] text-gray-200 border-l-8 border-l-blue-500 backdrop-blur-sm animate-pulse`}
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-yellow-500">
+                  <div className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-blue-500">
                     NetBox-AI System
                   </span>
                 </div>
@@ -253,7 +294,8 @@ export function ChatBot() {
                 {/* Bot Response: Taking up the entire width allowed */}
                 <div
                   className={`w-full p-6 border rounded-2xl bg-gray-900/40 shadow-inner font-mono text-[14px] text-gray-200 border-l-8 border-l-green-500 backdrop-blur-sm ${
-                    msg.response.startsWith("⚠️ Error")
+                    msg.response.startsWith("⚠️ Error") ||
+                    msg.response.includes("error")
                       ? "border-l-red-500 border-red-500"
                       : "border-l-green-500 border-green-500"
                   }`}
@@ -261,14 +303,16 @@ export function ChatBot() {
                   <div className="flex items-center gap-2 mb-4">
                     <div
                       className={`w-2 h-2 rounded-full ${
-                        msg.response.startsWith("⚠️ Error")
+                        msg.response.startsWith("⚠️ Error") ||
+                        msg.response.includes("error")
                           ? "bg-red-500"
                           : "bg-green-500"
                       }`}
                     />
                     <span
                       className={`text-[11px] font-bold uppercase tracking-widest ${
-                        msg.response.startsWith("⚠️ Error")
+                        msg.response.startsWith("⚠️ Error") ||
+                        msg.response.includes("error")
                           ? "text-red-500"
                           : "text-green-500"
                       }`}
@@ -287,8 +331,7 @@ export function ChatBot() {
       </main>
 
       {/* --- FIXED BOTTOM INPUT CONSOLE (WITH X-PADDING AND MAX-WIDTH) --- */}
-      <footer className="flex-none fixed bottom-0 left-0 right-0 bg-gradient-to-t from-[#0b0f1a] via-[#0b0f1a]/70 to-transparent pt-8 pb-10 z-30 px-72">
-        {/* <footer className="flex-none fixed bottom-0 left-0 right-0 bg-gradient-to-t from-[#0b0f1a] via-[#0b0f1a]/70 to-transparent pt-16 pb-10 z-30 px-6"> */}
+      <footer className="flex-none fixed bottom-0 left-0 right-0 pt-8 pb-10 z-30 px-2 lg:px-80 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/40 ">
         <div className="max-w-4xl mx-auto">
           {/* Status Bar */}
           <div className="flex items-center gap-3 mb-4 px-1">
@@ -320,10 +363,11 @@ export function ChatBot() {
               placeholder={`${
                 isLoading ? "Processing request..." : "Issue network command"
               }`}
+              disabled={isLoading}
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
               <Button
-                className={`h-12 px-8 bg-gradient-to-br from-red-600 to-blue-600 font-bold rounded-xl transition-all duration-300 uppercase ${
+                className={`lg:h-12 lg:px-8 bg-gradient-to-br from-red-600 to-blue-600 font-bold rounded-xl transition-all duration-300 uppercase ${
                   !input
                     ? "opacity-20 grayscale"
                     : "hover:scale-105 hover:shadow-[0_0_30px_rgba(59,130,246,0.4)]"

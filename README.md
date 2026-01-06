@@ -24,12 +24,18 @@ Following best practices for project maintenance:
 
 ## 🚦 Getting Started
 
-Since this project uses Cloudflare-specific bindings (AI), the best way to preview is via the Cloudflare Pages deployment.
+Since this project uses Cloudflare-specific bindings (AI), the best way to preview is via the Cloudflare Pages deployment. Assuming local deployment (first ensuring docker container is running):
 
 ```bash
 # Install dependencies
 npm install
 
-# Build & Deploy via Cloudflare
-npx @cloudflare/next-on-pages
+# Build
+npm run build
+
+# Deploy via Cloudflare
+npx @cloudflare/next-on-pages@latest
+
+# Test Locally via CloudFlare
+npx wrangler pages dev .vercel/output/static --ai AI --compatibility-flag=nodejs_compat --binding NETBOX_TOKEN="[token_here]"
 ```

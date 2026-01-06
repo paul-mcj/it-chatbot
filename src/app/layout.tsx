@@ -16,15 +16,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <body className="min-bg-background text-foreground antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
+      <body className="min-h-full bg-background text-foreground antialiased flex flex-col">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Navbar />
           <SmoothScroll>
-            <Navbar />
             <Container>{children}</Container>
           </SmoothScroll>
         </ThemeProvider>
