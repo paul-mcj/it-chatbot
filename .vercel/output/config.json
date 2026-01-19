@@ -184,7 +184,7 @@
       "handle": "hit"
     },
     {
-      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|AWG\\-xxfNYCfu3OYSxub6i)/.+",
+      "src": "/_next/static/(?:[^/]+/pages|pages|chunks|runtime|css|image|media|2i86igb5iO\\-HfKh375393)/.+",
       "headers": {
         "cache-control": "public,max-age=31536000,immutable"
       },
@@ -213,12 +213,18 @@
     {
       "src": "/.*",
       "dest": "/_not-found",
-      "status": 404
+      "status": 404,
+      "headers": {
+        "x-next-error-status": "404"
+      }
     },
     {
       "src": "/.*",
       "dest": "/500",
-      "status": 500
+      "status": 500,
+      "headers": {
+        "x-next-error-status": "500"
+      }
     }
   ],
   "overrides": {
