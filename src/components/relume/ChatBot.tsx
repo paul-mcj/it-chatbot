@@ -70,15 +70,15 @@ const generatePrompts = [
   `Who is currently assigned to the IP 10.0.0.${
     Math.floor(Math.random() * 64) + 64
   }?`,
-  `Who is currently assigned to the IP 10.0.0.${
-    Math.floor(Math.random() * 63) + 1
-  }?`,
-  `Who is currently assigned to the IP 10.0.0.${
-    Math.floor(Math.random() * 64) + 128
-  }?`,
-  `Who is currently assigned to the IP 10.0.0.${
-    Math.floor(Math.random() * 63) + 192
-  }?`,
+  // `Who is currently assigned to the IP 10.0.0.${
+  //   Math.floor(Math.random() * 63) + 1
+  // }?`,
+  // `Who is currently assigned to the IP 10.0.0.${
+  //   Math.floor(Math.random() * 64) + 128
+  // }?`,
+  // `Who is currently assigned to the IP 10.0.0.${
+  //   Math.floor(Math.random() * 63) + 192
+  // }?`,
   "Search the database for any devices labeled 'Printer'.",
   "Search the database for any devices labeled 'Server'.",
 
