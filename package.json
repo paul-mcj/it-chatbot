@@ -65,8 +65,8 @@
     "diff": "^8.0.3",
     "undici": "^6.21.1",
     "path-to-regexp": "^6.3.0",
-    "esbuild": "^0.24.2",
-    "tar": "^7.5.3",
+    "esbuild": "0.25.0",
+    "tar": "7.5.7",
     "@relume_io/relume-ui": {
       "npm": {
         "tar": "^7.5.3"
